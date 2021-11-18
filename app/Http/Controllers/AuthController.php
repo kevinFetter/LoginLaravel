@@ -14,7 +14,6 @@ class AuthController extends Controller
             //dd(Auth::user());
             return view('admin.dashboard');
         }
-
         return redirect()->route('admin.login');
     }
 
@@ -23,18 +22,26 @@ class AuthController extends Controller
         return view('admin.formLogin');
     }
 
-
     public function login(Request $request)
     {
-        var_dump($request->all());
+        //var_dump($request->all());
+        //validar se o Email é válido
+        if(!filter_var($request->email, FILTER_VALIDATE_EMAIL))
+        {
+            return redirect()->back()->withInput()->withErrors(['E-mail inválido !']);
+        }
 
         $credentials = [
             'email'     => $request->email,
             'password'  => $request->password
         ];
-
         //vai fazer uma tentativa de login com array associativa
-        Auth::attempt($credentials);
+        if(Auth::attempt($credentials)){
+            return redirect()->route('admin');    
+        };
+        //valida se tiver erro
+        //withInput faz persistir os dados e o withErros valida se tem erro e informa mensagem
+        return redirect()->back()->withInput()->withErrors(['Dados informados não confererem!']);
     }
 
     public function logout()
@@ -42,5 +49,4 @@ class AuthController extends Controller
         Auth::logout();
         return redirect()->route('admin');
     }
-
 }
